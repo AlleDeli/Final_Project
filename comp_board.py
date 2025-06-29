@@ -229,8 +229,7 @@ with col1:
     comp_big1 = filtered_df[filtered_df['DeadlineStatus'] != 'Closed']
     st.metric(
         "현재 활성화된 대회 수",
-        f"{comp_big1.shape[0]:,.0f}개",           # 천단위 구분기호 포함
-        f"{len(filtered_df):,}개"         # 하위 텍스트: 총 대회 개수
+        f"{comp_big1.shape[0]:,.0f}개"           # 천단위 구분기호 포함
     )
 
 with col2:
