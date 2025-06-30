@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 # =============================================================================
@@ -289,52 +290,55 @@ st.divider()
 
 col1, col2 = st.columns([1, 1])  # 좌우 비율 2:3
 
+from sklearn.preprocessing import MinMaxScaler
+
 # ▣ 좌측: 단독 레이더 차트
 with col1:
     st.subheader("📌 HostSegment별 대회 특성 레이더 차트")
-
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 
-
+    # 집계
     comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
-    'CompetitionId': 'count',
-    'RewardQuantity': 'mean',
-    'CompetitionRate': 'mean',
-    'TotalTeams': 'mean',
-    'Duration': 'mean'
+        'CompetitionId': 'count',
+        'RewardQuantity': 'mean',
+        'CompetitionRate': 'mean',
+        'TotalTeams': 'mean',
+        'Duration': 'mean'
     }).reset_index()
 
     comp_radar.rename(columns={'CompetitionId': 'Num_Comps'}, inplace=True)
 
-    from sklearn.preprocessing import MinMaxScaler
-
-    # HostSegmentTitle을 인덱스로 잠시 설정
+    # 정규화
     radar_data = comp_radar.set_index('HostSegmentTitle')
     scaler = MinMaxScaler()
-    radar_normalized = pd.DataFrame(scaler.fit_transform(radar_data), 
-                                    index=radar_data.index, 
-                                    columns=radar_data.columns)
+    radar_normalized = pd.DataFrame(
+        scaler.fit_transform(radar_data),
+        index=radar_data.index,
+        columns=radar_data.columns
+    )
 
-    # 컬럼과 범주 정의
-    labels = radar_normalized.columns.tolist()
-    num_vars = len(labels)
-    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
-    angles += angles[:1]  # 시작점으로 회귀
-
-    # 플롯 세팅
-    fig, ax = plt.subplots(figsize=(12, 12), subplot_kw=dict(polar=True))
+    # Plotly Radar Chart
+    fig = go.Figure()
 
     for idx, row in radar_normalized.iterrows():
-        values = row.tolist()
-        values += values[:1]  # 닫기 위해 맨 처음 값 추가
-        ax.plot(angles, values, label=idx)
-        ax.fill(angles, values, alpha=0.1)
+        fig.add_trace(go.Scatterpolar(
+            r=row.tolist() + [row.tolist()[0]],  # 닫기 위해 첫 값 추가
+            theta=radar_normalized.columns.tolist() + [radar_normalized.columns.tolist()[0]],
+            fill='toself',
+            name=idx
+        ))
 
-    ax.set_thetagrids(np.degrees(angles[:-1]), labels)
-    plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-    plt.tight_layout()
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1])
+        ),
+        showlegend=True,
+        width=700,
+        height=700,
+        margin=dict(t=30, b=30, l=30, r=30)
+    )
 
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 ## ----------------------------------------------------------------------
 
