@@ -91,37 +91,41 @@ with st.sidebar:
     # -------------------------------------------------------------------------
     # 알고리즘 필터 섹션
     # -------------------------------------------------------------------------
-    st.subheader("평가 기준 필터")
     
-    # 데이터에서 고유한 카테고리 목록 추출
-    all_categories_algo = comp1['AlgorithmCategory'].unique()
-    
-    # 다중 선택 위젯: 기본값으로 모든 카테고리 선택
-    selected_algo_categories = st.multiselect(
-        "카테고리 선택",
-        options=all_categories_algo,
-        default=all_categories_algo,                    # 모든 카테고리를 기본 선택
-        help="회귀, 분류 등 원하는 대회 종류를 필터링할 수 있습니다."      # 도움말 텍스트
-    )
+    # 평가 기준 필터
+    st.subheader("🎯 평가 기준 필터")
+
+    with st.expander("카테고리 선택", expanded=True):
+        # 유니크한 카테고리 추출 및 정렬
+        all_categories_algo = sorted(comp1['AlgorithmCategory'].dropna().unique())
+
+        # 전체 선택 상태 관리
+        select_all_algo = st.checkbox("전체 선택 / 해제", value=True, key="algo_all")
+
+        # 체크박스 리스트 구현
+        selected_algo_categories = []
+        for category in all_categories_algo:
+            if st.checkbox(category, value=select_all_algo, key=f"algo_{category}"):
+                selected_algo_categories.append(category)
 
     st.divider()
 
     # -------------------------------------------------------------------------
     # 카테고리 필터 섹션
     # -------------------------------------------------------------------------
-    st.subheader("대회 유형 필터")
-    
-    # 데이터에서 고유한 카테고리 목록 추출
-    all_categories_host = comp1['HostSegmentTitle'].unique()
-    
-    # 다중 선택 위젯: 기본값으로 모든 카테고리 선택
-    selected_host_categories = st.multiselect(
-        "카테고리 선택",
-        options=all_categories_host,
-        default=all_categories_host                    # 모든 카테고리를 기본 선택
-        # help="참고: Community, Playground, Getting Started 유형은" \
-        # "일반적으로 대회에서 메달을 수여하지 않습니다"        # 도움말 텍스트
-    )
+
+    st.subheader("🏁 대회 유형 필터")
+
+    with st.expander("카테고리 선택", expanded=True):
+        all_categories_host = sorted(comp1['HostSegmentTitle'].dropna().unique())
+
+        # 전체 선택 토글
+        select_all_host = st.checkbox("전체 선택 / 해제", value=True, key="host_all")
+
+        selected_host_categories = []
+        for category in all_categories_host:
+            if st.checkbox(category, value=select_all_host, key=f"host_{category}"):
+                selected_host_categories.append(category)
 
     st.divider()
 
@@ -212,6 +216,12 @@ filtered_df = comp1[
 if '전체' not in selected_reward:
     filtered_df = filtered_df[filtered_df['RewardGroup'].isin(selected_reward)]
 
+# 선택값이 아예 없을 경우 전체를 기본값으로 처리
+if not selected_algo_categories:
+    selected_algo_categories = all_categories_algo
+
+if not selected_host_categories:
+    selected_host_categories = all_categories_host
 
 # -------------------------------------------------------------------------
 # 헤더 및 기본 정보
