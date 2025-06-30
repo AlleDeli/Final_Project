@@ -578,6 +578,7 @@ with st.expander("기타 설명 (필터 및 차트 해석)"):
     - **Recruitment**: 채용 기회가 주어지는 **기업 연계형** 대회입니다.  
     - **Analytics**: 데이터 분석과 **인사이트 도출 중심**의 대회입니다.  
 
+    - **참고**: **Community, Playground, Getting Started** 대회는 일반적으로 메달을 수여하지 않습니다. 
     ---
 
     **3. 레이더 차트 사용법**  
