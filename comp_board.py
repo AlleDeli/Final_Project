@@ -132,7 +132,7 @@ with st.sidebar:
     
     def make_rewardgroup(x):
         if x < 10:
-            return 'None'
+            return '없음 (10달러 미만)'
         elif x < 5000:
             return '10~4999'
         elif x < 10000:
@@ -298,89 +298,87 @@ from sklearn.preprocessing import MinMaxScaler
 
 # ▣ 좌측: 단독 레이더 차트
 with col1:
-    st.subheader("📌 대회 유형별 특징 차트")
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    tab1, tab2 = st.tabs(["레이더 차트", "데이터 원본"])
+        st.subheader("📌 대회 유형별 특징 차트")
+        st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+        tab1, tab2 = st.tabs(["레이더 차트", "데이터 원본"])
 
+        with tab1:
+            comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
+                'CompetitionId': 'count',
+                'RewardQuantity': 'mean',
+                'CompetitionRate': 'mean',
+                'TotalTeams': 'mean',
+                'Duration': 'mean'
+            }).reset_index()
 
-    with tab1:
-        comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
-            'CompetitionId': 'count',
-            'RewardQuantity': 'mean',
-            'CompetitionRate': 'mean',
-            'TotalTeams': 'mean',
-            'Duration': 'mean'
-        }).reset_index()
+            comp_radar.rename(columns={
+                'HostSegmentTitle': '대회 유형',
+                'CompetitionId': '대회 수',
+                'RewardQuantity': '평균 상금',
+                'CompetitionRate': '평균 경쟁률',
+                'TotalTeams': '평균 참가팀',
+                'Duration': '평균 대회기간'           
+                }, inplace=True)
 
-        comp_radar.rename(columns={
-            'HostSegmentTitle': '대회 유형',
-            'CompetitionId': '대회 수',
-            'RewardQuantity': '평균 상금',
-            'CompetitionRate': '평균 경쟁률',
-            'TotalTeams': '평균 참가팀',
-            'Duration': '평균 대회기간'           
-            }, inplace=True)
+            # 정규화
+            radar_data = comp_radar.set_index('대회 유형')
+            scaler = MinMaxScaler()
+            radar_normalized = pd.DataFrame(
+                scaler.fit_transform(radar_data),
+                index=radar_data.index,
+                columns=radar_data.columns
+            )
 
-        # 정규화
-        radar_data = comp_radar.set_index('대회 유형')
-        scaler = MinMaxScaler()
-        radar_normalized = pd.DataFrame(
-            scaler.fit_transform(radar_data),
-            index=radar_data.index,
-            columns=radar_data.columns
-        )
+            # Plotly Radar Chart
+            fig = go.Figure()
 
-        # Plotly Radar Chart
-        fig = go.Figure()
+            for idx, row in radar_normalized.iterrows():
+                fig.add_trace(go.Scatterpolar(
+                    r=row.tolist() + [row.tolist()[0]],  # 닫기 위해 첫 값 추가
+                    theta=radar_normalized.columns.tolist() + [radar_normalized.columns.tolist()[0]],
+                    fill='toself',
+                    name=idx
+                ))
 
-        for idx, row in radar_normalized.iterrows():
-            fig.add_trace(go.Scatterpolar(
-                r=row.tolist() + [row.tolist()[0]],  # 닫기 위해 첫 값 추가
-                theta=radar_normalized.columns.tolist() + [radar_normalized.columns.tolist()[0]],
-                fill='toself',
-                name=idx
-            ))
+            fig.update_layout(
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 1])
+                ),
+                showlegend=True,
+                legend=dict(
+                    x=-0.2,
+                    y=1.05,
+                    xanchor='left',
+                    yanchor='top'
+                ),
+                width=850,
+                height=750,
+                margin=dict(t=30, b=30, l=30, r=80)
+            )
 
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 1])
-            ),
-            showlegend=True,
-            legend=dict(
-                x=-0.2,
-                y=1.05,
-                xanchor='left',
-                yanchor='top'
-            ),
-            width=850,
-            height=750,
-            margin=dict(t=30, b=30, l=30, r=80)
-        )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with tab2:
+            comp_radar_tab2 = comp_radar.copy()
+            comp_radar_tab2.rename(columns={
+                '대회 수': '대회 수 (개)',
+                '평균 상금': '평균 상금 (USD)',
+                '평균 경쟁률': '평균 경쟁률 (:1)',
+                '평균 참가팀': '평균 참가팀 (팀)',
+                '평균 대회기간': '평균 대회기간 (일)'           
+                }, inplace=True)
+            comp_radar_tab2 = comp_radar_tab2.sort_values("대회 수 (개)", ascending=False)
+            comp_radar_tab2.reset_index(drop=True, inplace=True)
+            comp_radar_tab2.index += 1  # 인덱스 1부터 시작
 
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with tab2:
-        comp_radar_tab2 = comp_radar.copy()
-        comp_radar_tab2.rename(columns={
-            '대회 수': '대회 수 (개)',
-            '평균 상금': '평균 상금 (USD)',
-            '평균 경쟁률': '평균 경쟁률 (:1)',
-            '평균 참가팀': '평균 참가팀 (팀)',
-            '평균 대회기간': '평균 대회기간 (일)'           
-            }, inplace=True)
-        comp_radar_tab2 = comp_radar_tab2.sort_values("대회 수 (개)", ascending=False)
-        comp_radar_tab2.reset_index(drop=True, inplace=True)
-        comp_radar_tab2.index += 1  # 인덱스 1부터 시작
-
-        st.subheader("데이터 원본")
-        st.dataframe(comp_radar_tab2.style.format({
-        "대회 수 (개)": "{:,.0f}",       # 정수 (천 단위 콤마 포함)
-        "평균 참가팀 (팀)": "{:,.0f}",   # 정수
-        "평균 상금 (USD)": "{:,.0f}",     # 정수 (천 단위 콤마 포함)
-        "평균 경쟁률 (:1)": "{:.2f}",    # 소수점 2자리
-        "평균 대회기간 (일)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
-        }))
-
+            st.subheader("데이터 원본")
+            st.dataframe(comp_radar_tab2.style.format({
+            "대회 수 (개)": "{:,.0f}",       # 정수 (천 단위 콤마 포함)
+            "평균 참가팀 (팀)": "{:,.0f}",   # 정수
+            "평균 상금 (USD)": "{:,.0f}",     # 정수 (천 단위 콤마 포함)
+            "평균 경쟁률 (:1)": "{:.2f}",    # 소수점 2자리
+            "평균 대회기간 (일)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
+            }))
 
 
 ## ----------------------------------------------------------------------
@@ -447,12 +445,12 @@ with col2:
             plot_4_2['Year_str'] = plot_4_2['Year'].astype(str)
 
             # 대회 수: 막대그래프
-            sns.barplot(data=plot_4_1, x='Year_str', y='CompetitionId', ax=ax1, color='skyblue', label='대회 수')
+            sns.barplot(data=plot_4_1, x='Year_str', y='CompetitionId', ax=ax1, color='skyblue')
             ax1.set_ylabel("Annual Competition Count", fontsize=12)
 
             # 상금: 꺾은선 (누적)
             ax2 = ax1.twinx()
-            sns.lineplot(data=plot_4_2, x='Year_str', y='RewardQuantity', marker='o', color='crimson', ax=ax2, label='누적 상금(USD)')
+            sns.lineplot(data=plot_4_2, x='Year_str', y='RewardQuantity', marker='o', color='crimson', ax=ax2)
             ax2.set_ylabel("Cumulative Reward Quantity", fontsize=12)
             ax2.grid(False)
 
@@ -460,14 +458,6 @@ with col2:
             ax1.set_xlabel("Year", fontsize=12)
             ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
             plt.title("Annual Competitions and Cumulative Rewards", fontsize=14)
-            lines_1, labels_1 = ax1.get_legend_handles_labels()
-            lines_2, labels_2 = ax2.get_legend_handles_labels()
-            ax1.legend(
-                handles=lines_1 + lines_2,
-                labels=labels_1 + labels_2,
-                loc='upper left',
-                bbox_to_anchor=(0, 1)
-            )
             plt.tight_layout()
 
             st.pyplot(fig)
@@ -563,4 +553,34 @@ with col2:
             st.dataframe(top10sum_table.style.format({
                 "총 상금 (USD)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
                 }))
-            
+
+
+## ----------------------------------------------------------------
+## 최하단 대시보드 해설
+
+
+# ✅ 최하단 공통 해설
+with st.expander("기타 설명 (필터 및 차트 해석)"):
+    st.markdown("""
+    **1. 평가 기준 필터**  
+    분류, 회귀 등 **대회를 평가하는 방식**을 기준으로 원하는 대회를 필터링할 수 있습니다.  
+
+    ---
+
+    **2. 대회 유형 필터**  
+    캐글이 내부적으로 분류한 **7가지 대회 유형**에 대한 설명입니다.
+
+    - **Featured**: 실제 산업 문제를 해결하며, **높은 상금**이 걸린 대표적인 캐글 대회입니다.  
+    - **Community**: 커뮤니티 유저가 직접 개최하는 **자유 주제**의 대회입니다.  
+    - **Research**: 새로운 데이터셋이나 **학술적 문제**를 다루는 연구 중심 대회입니다.  
+    - **Playground**: 실전 감각을 익히는 **연습 및 재미 위주**의 대회입니다.  
+    - **Getting Started**: **입문자용 쉬운 난이도**의 대회입니다.  
+    - **Recruitment**: 채용 기회가 주어지는 **기업 연계형** 대회입니다.  
+    - **Analytics**: 데이터 분석과 **인사이트 도출 중심**의 대회입니다.  
+
+    ---
+
+    **3. 레이더 차트 사용법**  
+    - 범례를 **한 번 클릭**하면 해당 대회 유형을 **그래프에서 숨길 수 있습니다.**  
+    - 범례를 **더블 클릭**하면 해당 대회 유형만 **단독으로 강조**해서 볼 수 있습니다.  
+    """)
