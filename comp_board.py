@@ -36,7 +36,7 @@ set_korean_font()
 # =============================================================================
 st.set_page_config(
     page_title="Kaggle Competition Dashboard",           # 브라우저 탭에 표시될 제목
-    page_icon="🤼",                    # 브라우저 탭 아이콘
+    page_icon="🏆",                    # 브라우저 탭 아이콘
     layout="wide",                     # 와이드 레이아웃: 화면 전체 폭 사용
     initial_sidebar_state="expanded"   # 페이지 로드 시 사이드바 펼쳐진 상태로 시작
 )
@@ -91,7 +91,7 @@ with st.sidebar:
     # -------------------------------------------------------------------------
     # 알고리즘 필터 섹션
     # -------------------------------------------------------------------------
-    st.subheader("알고리즘 필터")
+    st.subheader("평가 기준 필터")
     
     # 데이터에서 고유한 카테고리 목록 추출
     all_categories_algo = comp1['AlgorithmCategory'].unique()
@@ -103,6 +103,8 @@ with st.sidebar:
         default=all_categories_algo,                    # 모든 카테고리를 기본 선택
         help="분석할 카테고리를 선택하세요"        # 도움말 텍스트
     )
+
+    st.divider()
 
     # -------------------------------------------------------------------------
     # 카테고리 필터 섹션
@@ -120,6 +122,7 @@ with st.sidebar:
         help="분석할 카테고리를 선택하세요"        # 도움말 텍스트
     )
 
+    st.divider()
 
     # -------------------------------------------------------------------------
     # 상금 필터 섹션
@@ -230,7 +233,7 @@ with col1:
     # 현재 활성화된 대회 수
     comp_big1 = filtered_df[filtered_df['DeadlineStatus'] != 'Closed']
     st.metric(
-        "🔥 현재 활성화된 대회 수",
+        "현재 활성화된 대회 수",
         f"{comp_big1.shape[0]:,.0f}개"           # 천단위 구분기호 포함
     )
 
@@ -238,7 +241,7 @@ with col2:
     # 대회 전체 평균 경쟁률
     comp_big2 = round(filtered_df['CompetitionRate'].median(),2)
     st.metric(
-        "📜 대회 경쟁률 중앙값",
+        "대회 경쟁률 중앙값",
         f"{comp_big2:,.0f} : 1"  
     )
 
@@ -251,8 +254,8 @@ with col3:
     comp_big4 = round(comp_plus100['RewardQuantity'].mean(),0)
     
     st.metric(
-        "💵 평균 대회 상금",
-        f"{comp_big4:,}USD",
+        "평균 대회 상금",
+        f"{comp_big4:,.0f}USD",
         "상금 100달러 이상인 대회 한정"
     )
 
@@ -261,8 +264,8 @@ with col4:
     comp_big5 = round(filtered_df['Duration'].median(),0)
 
     st.metric(
-    "📅 대회 기간 중앙값",
-    f"{comp_big5:,}일"
+    "대회 기간 중앙값",
+    f"{comp_big5:,.0f}일"
     )
 
 with col5:
@@ -270,8 +273,8 @@ with col5:
     comp_big6 = round(filtered_df['TotalTeams'].mean(),2)
 
     st.metric(
-    "🧑‍🤝‍🧑대회 참가팀 중앙값",
-    f"{comp_big6:,}팀"
+    "대회 참가팀 중앙값",
+    f"{comp_big6:,.0f}팀"
     )
 
     # with tab3:
@@ -288,71 +291,96 @@ st.divider()
 # 차트 영역 (2개 컬럼으로 구성)
 # -------------------------------------------------------------------------
 
-col1, col2 = st.columns([1, 1])  # 좌우 비율 2:3
+col1, col2 = st.columns([1, 1])  # 좌우 비율 1:1
 
 from sklearn.preprocessing import MinMaxScaler
 
 # ▣ 좌측: 단독 레이더 차트
 with col1:
-    st.subheader("📌 HostSegment별 대회 특성 레이더 차트")
+    tab1, tab2 = st.tabs(["레이더 차트", "데이터 원본"])
+    st.subheader("📌 대회 유형별 특징 차트")
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 
-    # 집계
-    comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
-        'CompetitionId': 'count',
-        'RewardQuantity': 'mean',
-        'CompetitionRate': 'mean',
-        'TotalTeams': 'mean',
-        'Duration': 'mean'
-    }).reset_index()
+    with tab1:
+        comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
+            'CompetitionId': 'count',
+            'RewardQuantity': 'mean',
+            'CompetitionRate': 'mean',
+            'TotalTeams': 'mean',
+            'Duration': 'mean'
+        }).reset_index()
 
-    comp_radar.rename(columns={'CompetitionId': 'Num_Comps'}, inplace=True)
+        comp_radar.rename(columns={
+            'HostSegmentTitle': '대회 유형',
+            'CompetitionId': '대회 수 (개)',
+            'RewardQuantity': '평균 상금 (USD)',
+            'CompetitionRate': '평균 경쟁률 (:1)',
+            'TotalTeams': '평균 참가팀 (팀)',
+            'Duration': '평균 대회기간 (일)'           
+            }, inplace=True)
 
-    # 정규화
-    radar_data = comp_radar.set_index('HostSegmentTitle')
-    scaler = MinMaxScaler()
-    radar_normalized = pd.DataFrame(
-        scaler.fit_transform(radar_data),
-        index=radar_data.index,
-        columns=radar_data.columns
-    )
+        # 정규화
+        radar_data = comp_radar.set_index('대회 유형')
+        scaler = MinMaxScaler()
+        radar_normalized = pd.DataFrame(
+            scaler.fit_transform(radar_data),
+            index=radar_data.index,
+            columns=radar_data.columns
+        )
 
-    # Plotly Radar Chart
-    fig = go.Figure()
+        # Plotly Radar Chart
+        fig = go.Figure()
 
-    for idx, row in radar_normalized.iterrows():
-        fig.add_trace(go.Scatterpolar(
-            r=row.tolist() + [row.tolist()[0]],  # 닫기 위해 첫 값 추가
-            theta=radar_normalized.columns.tolist() + [radar_normalized.columns.tolist()[0]],
-            fill='toself',
-            name=idx
-        ))
+        for idx, row in radar_normalized.iterrows():
+            fig.add_trace(go.Scatterpolar(
+                r=row.tolist() + [row.tolist()[0]],  # 닫기 위해 첫 값 추가
+                theta=radar_normalized.columns.tolist() + [radar_normalized.columns.tolist()[0]],
+                fill='toself',
+                name=idx
+            ))
 
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 1])
-        ),
-        showlegend=True,
-        legend=dict(
-            x=0,
-            y=1,
-            xanchor='left',
-            yanchor='top'
-        ),
-        width=750,
-        height=750,
-        margin=dict(t=30, b=30, l=30, r=30)
-    )
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 1])
+            ),
+            showlegend=True,
+            legend=dict(
+                x=-0.2,
+                y=1.05,
+                xanchor='left',
+                yanchor='top'
+            ),
+            width=750,
+            height=750,
+            margin=dict(t=30, b=30, l=30, r=30)
+        )
 
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with tab2:
+        comp_radar_tab2 = comp_radar.copy()
+        comp_radar_tab2 = comp_radar_tab2.sort_values("대회 수 (개)", ascending=False)
+        comp_radar_tab2.reset_index(drop=True, inplace=True)
+        comp_radar_tab2.index += 1  # 인덱스 1부터 시작
+
+        st.subheader("데이터 원본")
+        st.dataframe(comp_radar_tab2.style.format({
+        "대회 수 (개)": "{:,.0f}",       # 정수 (천 단위 콤마 포함)
+        "평균 참가팀 (팀)": "{:,.0f}",   # 정수
+        "평균 상금 (USD)": "{:,.0f}",     # 정수 (천 단위 콤마 포함)
+        "평균 경쟁률 (:1)": "{:.2f}",    # 소수점 2자리
+        "평균 대회기간 (일)": "{:.2f}"   # 소수점 2자리
+        }))
+
+
 
 ## ----------------------------------------------------------------------
 
 # ▣ 우측 상단: 탭 2개 (그래프)
 with col2:
     with st.container():
-        st.subheader("📈 시계열 추이 그래프")
-        tab1, tab2, tab3 = st.tabs(["1.평가 알고리즘", "1-1.원본 데이터", "2.누적 대회 수 & 상금"])
+        st.subheader("📈 연도별 트렌드")
+        tab1, tab2, tab3 = st.tabs(["1.평가 기준", "1-1.데이터 원본", "2.누적 대회 수 & 상금"])
 
         with tab1:
             pivot_cat = filtered_df.pivot_table(
@@ -423,6 +451,7 @@ with col2:
             ax1.set_xlabel("Year", fontsize=12)
             ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
             plt.title("Annual Competitions and Cumulative Rewards", fontsize=14)
+            plt.legend()
             plt.tight_layout()
 
             st.pyplot(fig)
@@ -457,40 +486,65 @@ with col2:
             top_comp_org_mean.drop(columns='Id', axis=1, inplace=True)
 
             # 5. 두 정보 병합
-            top10_comp_org_mean = pd.merge(comp_org_mean, top_comp_org, how='inner', on='OrganizationId')
+            top10_comp_org_mean = pd.merge(comp_org_mean, top_comp_org, how='inner', on='OrganizationId')       
 
-            # 6. 최종 정리
-            top10_table = top10_comp_org_mean[['Name_clean', 'NumberOfCompetitions', 'MeanPrize', 'industry']]\
+            # 6. 최종본 컬럼 이름 한글화
+            top10_comp_org_mean.rename(columns={
+            'Name_clean': '기관명',
+            'NumberOfCompetitions': '대회 수 (개)',
+            'MeanPrize': '평균 상금 (USD)',
+            'industry': '산업군'        
+            }, inplace=True)
+
+            # 7. 최종 정리
+            top10_table = top10_comp_org_mean[['기관명', '대회 수 (개)', '평균 상금 (USD)', '산업군']]\
                             .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0).reset_index(drop=True)
             top10_table.index += 1
 
-            st.dataframe(top10_table)
+            # 8. 출력
+            st.dataframe(top10_table.style.format({
+                "평균 상금 (USD)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
+                }))
 
 
         with tab4:
-            # ▣ 기관별 대회 수 집계
+            # 1. 기관별 대회 수 집계
             comp_org2 = filtered_df.groupby('OrganizationId')['CompetitionId'].count().reset_index()
             comp_org2 = comp_org2[comp_org2['OrganizationId'] != 0]
             comp_org2.rename(columns={'CompetitionId': 'NumberOfCompetitions'}, inplace=True)
 
-            # ▣ 대회 수 기준 상위 기관 병합
+            # 2. 대회 수 기준 상위 기관 병합
             top_comp_org2 = pd.merge(comp_org2, org, how='inner', left_on='OrganizationId', right_on='Id')
             top_comp_org2.drop(columns='Id', axis=1, inplace=True)
 
-            # ▣ 기관별 총 상금 집계
+            # 3. 기관별 총 상금 집계
             comp_org_sum = filtered_df.groupby('OrganizationId')['RewardQuantity'].sum().reset_index()
             comp_org_sum.rename(columns={'RewardQuantity': 'TotalPrize'}, inplace=True)
 
-            # ▣ 총 상금 기준 상위 기관 병합
+            # 4. 총 상금 기준 상위 기관 병합
             top_comp_org_sum = pd.merge(comp_org_sum, org, how='inner', left_on='OrganizationId', right_on='Id')
             top_comp_org_sum.drop(columns='Id', axis=1, inplace=True)
             top_comp_org_sum['TotalPrize'] = top_comp_org_sum['TotalPrize'].astype(int)
 
-            # ▣ 최종 병합 및 상위 10개 정렬 출력
+            # 5. 최종 병합 
             top10_comp_org_sum = pd.merge(comp_org_sum, top_comp_org2, how='inner', on='OrganizationId')
+
+            # 6. 최종본 컬럼 이름 한글화
+            top10_comp_org_sum.rename(columns={
+            'Name_clean': '기관명',
+            'NumberOfCompetitions': '대회 수 (개)',
+            'TotalPrize': '총 상금 (USD)',
+            'industry': '산업군'        
+            }, inplace=True)
+
+            # 7. 최종 정리
             top10sum_table = top10_comp_org_sum[
-                ['Name_clean', 'NumberOfCompetitions', 'TotalPrize', 'industry']
+                ['기관명', '대회 수 (개)', '총 상금 (USD)', '산업군']
                 ].sort_values(by='TotalPrize', ascending=False).head(10).round(0).reset_index(drop=True)
             top10sum_table.index += 1
             
-            st.dataframe(top10sum_table)
+            # 8. 출력
+            st.dataframe(top10sum_table.style.format({
+                "총 상금 (USD)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
+                }))
+            
