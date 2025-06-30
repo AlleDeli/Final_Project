@@ -595,3 +595,42 @@ with st.expander("기타 설명 (필터 및 차트 해석)"):
     - 범례를 **한 번 클릭**하면 해당 대회 유형을 **그래프에서 숨길 수 있습니다.**  
     - 범례를 **더블 클릭**하면 해당 대회 유형만 **단독으로 강조**해서 볼 수 있습니다.  
     """)
+
+
+
+
+
+###### 이전 코드 창고
+
+
+#    st.subheader("평가 기준 필터")
+    
+#     # 데이터에서 고유한 카테고리 목록 추출
+#     all_categories_algo = comp1['AlgorithmCategory'].unique()
+    
+#     # 다중 선택 위젯: 기본값으로 모든 카테고리 선택
+#     selected_algo_categories = st.multiselect(
+#         "카테고리 선택",
+#         options=all_categories_algo,
+#         default=all_categories_algo,                    # 모든 카테고리를 기본 선택
+#         help="회귀, 분류 등 원하는 대회 종류를 필터링할 수 있습니다."      # 도움말 텍스트
+#     )
+
+#     st.divider()
+
+
+#     st.subheader("대회 유형 필터")
+    
+#     # 데이터에서 고유한 카테고리 목록 추출
+#     all_categories_host = comp1['HostSegmentTitle'].unique()
+    
+#     # 다중 선택 위젯: 기본값으로 모든 카테고리 선택
+#     selected_host_categories = st.multiselect(
+#         "카테고리 선택",
+#         options=all_categories_host,
+#         default=all_categories_host                    # 모든 카테고리를 기본 선택
+#         # help="참고: Community, Playground, Getting Started 유형은" \
+#         # "일반적으로 대회에서 메달을 수여하지 않습니다"        # 도움말 텍스트
+#     )
+
+#     st.divider()
