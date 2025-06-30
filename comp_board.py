@@ -429,7 +429,6 @@ with col2:
             st.pyplot(fig) 
 
         with tab2:
-            st.subheader("📄 알고리즘 카테고리 연도별 대회 수 (원본 테이블)")
             st.dataframe(pivot_cat_sorted, use_container_width=True)
         
         with tab3:
