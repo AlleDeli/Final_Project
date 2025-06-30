@@ -175,7 +175,7 @@ with st.sidebar:
     
     # 다중 선택 위젯: 기본값으로 모든 지역 선택
     selected_year_range = st.slider(
-        "📅 연도 범위 선택",
+        "연도 범위 선택",
         min_value=min_year,
         max_value=max_year,
         value=(min_year, max_year),  # ✅ 전체 범위를 기본값으로 설정
@@ -255,8 +255,8 @@ with col3:
     
     st.metric(
         "평균 대회 상금",
-        f"{comp_big4:,.0f}USD",
-        "상금 100달러 이상인 대회 한정"
+        f"${comp_big4:,.0f}",
+        "상금 100달러 이상 대회 한정"
     )
 
 with col4:
@@ -313,11 +313,11 @@ with col1:
 
         comp_radar.rename(columns={
             'HostSegmentTitle': '대회 유형',
-            'CompetitionId': '대회 수 (개)',
-            'RewardQuantity': '평균 상금 (USD)',
-            'CompetitionRate': '평균 경쟁률 (:1)',
-            'TotalTeams': '평균 참가팀 (팀)',
-            'Duration': '평균 대회기간 (일)'           
+            'CompetitionId': '대회 수',
+            'RewardQuantity': '평균 상금',
+            'CompetitionRate': '평균 경쟁률',
+            'TotalTeams': '평균 참가팀',
+            'Duration': '평균 대회기간'           
             }, inplace=True)
 
         # 정규화
@@ -351,15 +351,22 @@ with col1:
                 xanchor='left',
                 yanchor='top'
             ),
-            width=750,
+            width=850,
             height=750,
-            margin=dict(t=30, b=30, l=30, r=30)
+            margin=dict(t=30, b=30, l=30, r=80)
         )
 
         st.plotly_chart(fig, use_container_width=True)
     
     with tab2:
         comp_radar_tab2 = comp_radar.copy()
+        comp_radar_tab2.rename(columns={
+            '대회 수': '대회 수 (개)',
+            '평균 상금': '평균 상금 (USD)',
+            '평균 경쟁률': '평균 경쟁률 (:1)',
+            '평균 참가팀': '평균 참가팀 (팀)',
+            '평균 대회기간': '평균 대회기간 (일)'           
+            }, inplace=True)
         comp_radar_tab2 = comp_radar_tab2.sort_values("대회 수 (개)", ascending=False)
         comp_radar_tab2.reset_index(drop=True, inplace=True)
         comp_radar_tab2.index += 1  # 인덱스 1부터 시작
@@ -370,7 +377,7 @@ with col1:
         "평균 참가팀 (팀)": "{:,.0f}",   # 정수
         "평균 상금 (USD)": "{:,.0f}",     # 정수 (천 단위 콤마 포함)
         "평균 경쟁률 (:1)": "{:.2f}",    # 소수점 2자리
-        "평균 대회기간 (일)": "{:.2f}"   # 소수점 2자리
+        "평균 대회기간 (일)": "{:,.0f}"   # 정수 (천 단위 콤마 포함)
         }))
 
 
