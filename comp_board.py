@@ -95,7 +95,7 @@ with st.sidebar:
     # 평가 기준 필터
     st.subheader("🎯 평가 기준 필터")
 
-    with st.expander("카테고리 선택", expanded=True):
+    with st.expander("카테고리 선택", expanded=False):
         # 유니크한 카테고리 추출 및 정렬
         all_categories_algo = sorted(comp1['AlgorithmCategory'].dropna().unique())
 
@@ -116,7 +116,7 @@ with st.sidebar:
 
     st.subheader("🏁 대회 유형 필터")
 
-    with st.expander("카테고리 선택", expanded=True):
+    with st.expander("카테고리 선택", expanded=False):
         all_categories_host = sorted(comp1['HostSegmentTitle'].dropna().unique())
 
         # 전체 선택 토글
