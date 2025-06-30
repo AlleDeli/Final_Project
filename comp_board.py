@@ -101,8 +101,7 @@ with st.sidebar:
         "카테고리 선택",
         options=all_categories_algo,
         default=all_categories_algo,                    # 모든 카테고리를 기본 선택
-        help="대회 종류를 선택할 수 있는 필터입니다." \
-        "회귀, 분류 등 원하시는 대회로 범위를 제한할 수 있습니다."        # 도움말 텍스트
+        help="회귀, 분류 등 원하는 대회 종류를 필터링할 수 있습니다."      # 도움말 텍스트
     )
 
     st.divider()
@@ -119,9 +118,9 @@ with st.sidebar:
     selected_host_categories = st.multiselect(
         "카테고리 선택",
         options=all_categories_host,
-        default=all_categories_host,                    # 모든 카테고리를 기본 선택
-        help="참고: Community, Playground, Getting Started 유형은" \
-        "일반적으로 대회에서 메달을 수여하지 않습니다"        # 도움말 텍스트
+        default=all_categories_host                    # 모든 카테고리를 기본 선택
+        # help="참고: Community, Playground, Getting Started 유형은" \
+        # "일반적으로 대회에서 메달을 수여하지 않습니다"        # 도움말 텍스트
     )
 
     st.divider()
@@ -448,12 +447,12 @@ with col2:
             plot_4_2['Year_str'] = plot_4_2['Year'].astype(str)
 
             # 대회 수: 막대그래프
-            sns.barplot(data=plot_4_1, x='Year_str', y='CompetitionId', ax=ax1, color='skyblue')
+            sns.barplot(data=plot_4_1, x='Year_str', y='CompetitionId', ax=ax1, color='skyblue', label='대회 수')
             ax1.set_ylabel("Annual Competition Count", fontsize=12)
 
             # 상금: 꺾은선 (누적)
             ax2 = ax1.twinx()
-            sns.lineplot(data=plot_4_2, x='Year_str', y='RewardQuantity', marker='o', color='crimson', ax=ax2)
+            sns.lineplot(data=plot_4_2, x='Year_str', y='RewardQuantity', marker='o', color='crimson', ax=ax2, label='누적 상금(USD)')
             ax2.set_ylabel("Cumulative Reward Quantity", fontsize=12)
             ax2.grid(False)
 
@@ -461,7 +460,14 @@ with col2:
             ax1.set_xlabel("Year", fontsize=12)
             ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
             plt.title("Annual Competitions and Cumulative Rewards", fontsize=14)
-            plt.legend()
+            lines_1, labels_1 = ax1.get_legend_handles_labels()
+            lines_2, labels_2 = ax2.get_legend_handles_labels()
+            ax1.legend(
+                handles=lines_1 + lines_2,
+                labels=labels_1 + labels_2,
+                loc='upper left',
+                bbox_to_anchor=(0, 1)
+            )
             plt.tight_layout()
 
             st.pyplot(fig)
