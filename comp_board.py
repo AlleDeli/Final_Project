@@ -38,8 +38,7 @@ st.set_page_config(
     page_title="Kaggle Competition Dashboard",           # 브라우저 탭에 표시될 제목
     page_icon="🤼",                    # 브라우저 탭 아이콘
     layout="wide",                     # 와이드 레이아웃: 화면 전체 폭 사용
-    initial_sidebar_state="expanded",   # 페이지 로드 시 사이드바 펼쳐진 상태로 시작
-    primaryColor = "#20BEFF"
+    initial_sidebar_state="expanded"   # 페이지 로드 시 사이드바 펼쳐진 상태로 시작
 )
 
 
