@@ -38,7 +38,8 @@ st.set_page_config(
     page_title="Kaggle Competition Dashboard",           # 브라우저 탭에 표시될 제목
     page_icon="🤼",                    # 브라우저 탭 아이콘
     layout="wide",                     # 와이드 레이아웃: 화면 전체 폭 사용
-    initial_sidebar_state="expanded"   # 페이지 로드 시 사이드바 펼쳐진 상태로 시작
+    initial_sidebar_state="expanded",   # 페이지 로드 시 사이드바 펼쳐진 상태로 시작
+    primaryColor = "#20BEFF"
 )
 
 
@@ -60,38 +61,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-    <style>
-    /* 🎯 슬라이더 핸들 색상 (브라우저별 처리) */
-    input[type=range]::-webkit-slider-thumb {
-        background: #20BEFF;  /* 캐글 블루 */
-        border: none;
-    }
-    input[type=range]::-moz-range-thumb {
-        background: #20BEFF;
-        border: none;
-    }
-
-    /* 🎯 슬라이더 트랙 색상 */
-    input[type=range]::-webkit-slider-runnable-track {
-        background: #A7E6FF;  /* 밝은 캐글 블루 톤 */
-    }
-    input[type=range]::-moz-range-track {
-        background: #A7E6FF;
-    }
-
-    /* 🎯 슬라이더 핸들 호버 시 */
-    input[type=range]:hover::-webkit-slider-thumb {
-        background: #0EA6DA;  /* 살짝 진한 캐글 블루 */
-    }
-
-    /* 📍 눈금 숫자 색상 (하단 연도 등) */
-    .stSlider > div[data-testid="stTickBar"] > div {
-        color: #20BEFF !important;
-        font-weight: 600 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 
 
@@ -373,8 +342,8 @@ with col1:
             xanchor='left',
             yanchor='top'
         ),
-        width=800,
-        height=800,
+        width=750,
+        height=750,
         margin=dict(t=30, b=30, l=30, r=30)
     )
 
@@ -495,7 +464,8 @@ with col2:
 
             # 6. 최종 정리
             top10_table = top10_comp_org_mean[['Name_clean', 'NumberOfCompetitions', 'MeanPrize', 'industry']]\
-                            .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0).reset_index()
+                            .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0).reset_index(drop=True)
+            top10_table.index += 1
 
             st.dataframe(top10_table)
 
@@ -523,6 +493,7 @@ with col2:
             top10_comp_org_sum = pd.merge(comp_org_sum, top_comp_org2, how='inner', on='OrganizationId')
             top10sum_table = top10_comp_org_sum[
                 ['Name_clean', 'NumberOfCompetitions', 'TotalPrize', 'industry']
-                ].sort_values(by='TotalPrize', ascending=False).head(10).round(0).reset_index()
+                ].sort_values(by='TotalPrize', ascending=False).head(10).round(0).reset_index(drop=True)
+            top10sum_table.index += 1
             
             st.dataframe(top10sum_table)
