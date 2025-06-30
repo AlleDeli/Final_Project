@@ -120,6 +120,7 @@ with st.sidebar:
         help="분석할 카테고리를 선택하세요"        # 도움말 텍스트
     )
 
+
     # -------------------------------------------------------------------------
     # 상금 필터 섹션
     # -------------------------------------------------------------------------
@@ -223,21 +224,21 @@ if len(filtered_df) == 0:
 # KPI 메트릭 카드 섹션
 # -------------------------------------------------------------------------
 # 4개의 컬럼으로 주요 지표들을 나란히 배치
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
     # 현재 활성화된 대회 수
     comp_big1 = filtered_df[filtered_df['DeadlineStatus'] != 'Closed']
     st.metric(
-        "현재 활성화된 대회 수",
+        "🔥 현재 활성화된 대회 수",
         f"{comp_big1.shape[0]:,.0f}개"           # 천단위 구분기호 포함
     )
 
 with col2:
     # 대회 전체 평균 경쟁률
-    comp_big2 = round(filtered_df['CompetitionRate'].mean(),2)
+    comp_big2 = round(filtered_df['CompetitionRate'].median(),2)
     st.metric(
-        "대회 평균 경쟁률",
+        "📜 대회 경쟁률 중앙값",
         f"{comp_big2:,.0f} : 1"  
     )
 
@@ -250,37 +251,36 @@ with col3:
     comp_big4 = round(comp_plus100['RewardQuantity'].mean(),0)
     
     st.metric(
-        "평균 대회 상금",
+        "💵 평균 대회 상금",
         f"{comp_big4:,}USD",
         "상금 100달러 이상인 대회 한정"
     )
 
 with col4:
-    tab1, tab2, tab3 = st.tabs(["📅 지속기간", "🧑‍🤝‍🧑 참가팀 수", "✅ 제출 수"])
-    
-    with tab1:
-        comp_big5 = round(filtered_df['Duration'].mean(),0)
+    # 대회 기간 중앙값
+    comp_big5 = round(filtered_df['Duration'].median(),0)
 
-        st.metric(
-        "평균 대회 지속기간",
-        f"{comp_big5:,}일"
-        )
+    st.metric(
+    "📅 대회 기간 중앙값",
+    f"{comp_big5:,}일"
+    )
 
-    with tab2:
-        comp_big6 = round(filtered_df['TotalTeams'].mean(),2)
+with col5:
+    # 대회 참가팀 중앙값
+    comp_big6 = round(filtered_df['TotalTeams'].mean(),2)
 
-        st.metric(
-        "대회 1개당 평균 참가 팀",
-        f"{comp_big6:,}팀"
-        )
+    st.metric(
+    "🧑‍🤝‍🧑대회 참가팀 중앙값",
+    f"{comp_big6:,}팀"
+    )
 
-    with tab3:
-        comp_big7 = round(filtered_df['TotalSubmissions'].mean(),2)
+    # with tab3:
+    #     comp_big7 = round(filtered_df['TotalSubmissions'].mean(),2)
 
-        st.metric(
-        "대회 1개당 평균 제출 수",
-        f"{comp_big7:,}회"
-        )
+    #     st.metric(
+    #     "대회 1개당 평균 제출 수",
+    #     f"{comp_big7:,}회"
+    #     )
 
 st.divider()
 
