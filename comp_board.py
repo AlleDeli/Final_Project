@@ -101,7 +101,8 @@ with st.sidebar:
         "카테고리 선택",
         options=all_categories_algo,
         default=all_categories_algo,                    # 모든 카테고리를 기본 선택
-        help="분석할 카테고리를 선택하세요"        # 도움말 텍스트
+        help="대회 종류를 선택할 수 있는 필터입니다." \
+        "회귀, 분류 등 원하시는 대회로 범위를 제한할 수 있습니다."        # 도움말 텍스트
     )
 
     st.divider()
@@ -119,7 +120,8 @@ with st.sidebar:
         "카테고리 선택",
         options=all_categories_host,
         default=all_categories_host,                    # 모든 카테고리를 기본 선택
-        help="분석할 카테고리를 선택하세요"        # 도움말 텍스트
+        help="참고: Community, Playground, Getting Started 유형은" \
+        "일반적으로 대회에서 메달을 수여하지 않습니다"        # 도움말 텍스트
     )
 
     st.divider()
