@@ -60,6 +60,40 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+    <style>
+    /* 🎯 슬라이더 핸들 색상 (브라우저별 처리) */
+    input[type=range]::-webkit-slider-thumb {
+        background: #20BEFF;  /* 캐글 블루 */
+        border: none;
+    }
+    input[type=range]::-moz-range-thumb {
+        background: #20BEFF;
+        border: none;
+    }
+
+    /* 🎯 슬라이더 트랙 색상 */
+    input[type=range]::-webkit-slider-runnable-track {
+        background: #A7E6FF;  /* 밝은 캐글 블루 톤 */
+    }
+    input[type=range]::-moz-range-track {
+        background: #A7E6FF;
+    }
+
+    /* 🎯 슬라이더 핸들 호버 시 */
+    input[type=range]:hover::-webkit-slider-thumb {
+        background: #0EA6DA;  /* 살짝 진한 캐글 블루 */
+    }
+
+    /* 📍 눈금 숫자 색상 (하단 연도 등) */
+    .stSlider > div[data-testid="stTickBar"] > div {
+        color: #20BEFF !important;
+        font-weight: 600 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 
 # =============================================================================
 # 데이터 생성 함수
@@ -333,8 +367,14 @@ with col1:
             radialaxis=dict(visible=True, range=[0, 1])
         ),
         showlegend=True,
-        width=700,
-        height=700,
+        legend=dict(
+            x=0,
+            y=1,
+            xanchor='left',
+            yanchor='top'
+        ),
+        width=800,
+        height=800,
         margin=dict(t=30, b=30, l=30, r=30)
     )
 
@@ -455,7 +495,7 @@ with col2:
 
             # 6. 최종 정리
             top10_table = top10_comp_org_mean[['Name_clean', 'NumberOfCompetitions', 'MeanPrize', 'industry']]\
-                            .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0)
+                            .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0).reset_index()
 
             st.dataframe(top10_table)
 
@@ -482,6 +522,7 @@ with col2:
             # ▣ 최종 병합 및 상위 10개 정렬 출력
             top10_comp_org_sum = pd.merge(comp_org_sum, top_comp_org2, how='inner', on='OrganizationId')
             top10sum_table = top10_comp_org_sum[
-                ['Name_clean', 'NumberOfCompetitions', 'TotalPrize', 'industry']].sort_values(by='TotalPrize', ascending=False).head(10).round(0)
+                ['Name_clean', 'NumberOfCompetitions', 'TotalPrize', 'industry']
+                ].sort_values(by='TotalPrize', ascending=False).head(10).round(0).reset_index()
             
             st.dataframe(top10sum_table)
