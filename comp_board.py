@@ -297,9 +297,10 @@ from sklearn.preprocessing import MinMaxScaler
 
 # ▣ 좌측: 단독 레이더 차트
 with col1:
-    tab1, tab2 = st.tabs(["레이더 차트", "데이터 원본"])
     st.subheader("📌 대회 유형별 특징 차트")
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    tab1, tab2 = st.tabs(["레이더 차트", "데이터 원본"])
+
 
     with tab1:
         comp_radar = filtered_df.groupby('HostSegmentTitle').agg({
@@ -498,7 +499,7 @@ with col2:
 
             # 7. 최종 정리
             top10_table = top10_comp_org_mean[['기관명', '대회 수 (개)', '평균 상금 (USD)', '산업군']]\
-                            .sort_values(by='NumberOfCompetitions', ascending=False).head(10).round(0).reset_index(drop=True)
+                            .sort_values(by='대회 수 (개)', ascending=False).head(10).round(0).reset_index(drop=True)
             top10_table.index += 1
 
             # 8. 출력
@@ -540,7 +541,7 @@ with col2:
             # 7. 최종 정리
             top10sum_table = top10_comp_org_sum[
                 ['기관명', '대회 수 (개)', '총 상금 (USD)', '산업군']
-                ].sort_values(by='TotalPrize', ascending=False).head(10).round(0).reset_index(drop=True)
+                ].sort_values(by='총 상금 (USD)', ascending=False).head(10).round(0).reset_index(drop=True)
             top10sum_table.index += 1
             
             # 8. 출력
