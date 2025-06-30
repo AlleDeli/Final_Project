@@ -42,24 +42,23 @@ st.set_page_config(
 )
 
 
-# 🔧 캐글 블루 태그 색상 재정의
-st.markdown("""
-    <style>
-    /* 태그 박스 스타일 */
-    .stMultiSelect [data-baseweb="tag"] {
-        background-color: #20BEFF !important;
-        color: white !important;
-        border-radius: 8px !important;
-        padding: 4px 8px !important;
-        font-weight: 500 !important;
-    }
-    /* X 아이콘 색상 */
-    .stMultiSelect [data-baseweb="tag"] svg {
-        fill: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
+# # 🔧 캐글 블루 태그 색상 재정의
+# st.markdown("""
+#     <style>
+#     /* 태그 박스 스타일 */
+#     .stMultiSelect [data-baseweb="tag"] {
+#         background-color: #20BEFF !important;
+#         color: white !important;
+#         border-radius: 8px !important;
+#         padding: 4px 8px !important;
+#         font-weight: 500 !important;
+#     }
+#     /* X 아이콘 색상 */
+#     .stMultiSelect [data-baseweb="tag"] svg {
+#         fill: white !important;
+#     }
+#     </style>
+# """, unsafe_allow_html=True)
 
 
 
