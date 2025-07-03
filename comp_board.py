@@ -466,6 +466,8 @@ with col2:
             # 기타 스타일
             ax1.set_xlabel("Year", fontsize=12)
             ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
+            ax1.legend(loc='upper left')
+            ax2.legend(loc='upper left')
             plt.title("Annual Competitions and Cumulative Rewards", fontsize=14)
             plt.tight_layout()
 
