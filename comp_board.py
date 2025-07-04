@@ -197,6 +197,15 @@ with st.sidebar:
         st.session_state.clear()  # 모든 세션 상태 삭제
         st.rerun()  # 페이지 새로고침
 
+        # 메모리 사용량 체크
+
+    import os
+    import psutil
+    pid = os.getpid()
+    process = psutil.Process(pid)
+    mem_mb = process.memory_info().rss / (1024 ** 2)
+    st.write(f"현재 프로세스 메모리 사용량: {mem_mb:.2f}MB")
+
 # =============================================================================
 # 메인 대시보드 영역
 # =============================================================================
@@ -635,3 +644,18 @@ with st.expander("기타 설명 (필터 및 차트 해석)"):
 #     )
 
 #     st.divider()
+
+
+
+
+
+
+
+
+
+# import psutil
+# import streamlit as st
+# memory = psutil.virtual_memory()
+# used = memory.used / (1024**2)  # MB 단위
+# total = memory.total / (1024**2)
+# st.metric(label="메모리 사용량", value=f"{used:.1f}MB", delta=f"/ {total:.1f}MB")
